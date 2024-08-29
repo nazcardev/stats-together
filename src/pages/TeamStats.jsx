@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { X } from "lucide-react";
+import { X, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const initialTeamMembers = [
   { id: 1, name: "Alice Johnson", avatar: "/placeholder.svg", holesInOne: 2, strokesTaken: 1250 },
@@ -13,14 +22,74 @@ const initialTeamMembers = [
 
 const TeamStats = () => {
   const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
+  const [newMember, setNewMember] = useState({ name: '', holesInOne: 0, strokesTaken: 0 });
 
   const handleDelete = (id) => {
     setTeamMembers(teamMembers.filter(member => member.id !== id));
   };
 
+  const handleAddMember = () => {
+    const id = Math.max(...teamMembers.map(m => m.id), 0) + 1;
+    setTeamMembers([...teamMembers, { ...newMember, id, avatar: "/placeholder.svg" }]);
+    setNewMember({ name: '', holesInOne: 0, strokesTaken: 0 });
+  };
+
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Meet Our Golf Team</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Meet Our Golf Team</h1>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Member
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Team Member</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  value={newMember.name}
+                  onChange={(e) => setNewMember({...newMember, name: e.target.value})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="holesInOne" className="text-right">
+                  Holes-in-One
+                </Label>
+                <Input
+                  id="holesInOne"
+                  type="number"
+                  value={newMember.holesInOne}
+                  onChange={(e) => setNewMember({...newMember, holesInOne: parseInt(e.target.value)})}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="strokesTaken" className="text-right">
+                  Strokes Taken
+                </Label>
+                <Input
+                  id="strokesTaken"
+                  type="number"
+                  value={newMember.strokesTaken}
+                  onChange={(e) => setNewMember({...newMember, strokesTaken: parseInt(e.target.value)})}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <Button onClick={handleAddMember}>Add Member</Button>
+          </DialogContent>
+        </Dialog>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {teamMembers.map((member) => (
           <Card key={member.id} className="relative">
