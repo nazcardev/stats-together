@@ -30,9 +30,23 @@ const TeamStats = () => {
 
   const handleAddMember = () => {
     const id = Math.max(...teamMembers.map(m => m.id), 0) + 1;
-    setTeamMembers([...teamMembers, { ...newMember, id, avatar: "/placeholder.svg" }]);
+    setTeamMembers(prevMembers => {
+      const updatedMembers = [...prevMembers, { ...newMember, id, avatar: "/placeholder.svg" }];
+      return sortTeamMembers(updatedMembers);
+    });
     setNewMember({ name: '', holesInOne: 0, strokesTaken: 0 });
   };
+
+  const sortTeamMembers = (members) => {
+    return members.sort((a, b) => {
+      if (b.holesInOne !== a.holesInOne) {
+        return b.holesInOne - a.holesInOne; // Sort by highest holes-in-one
+      }
+      return a.strokesTaken - b.strokesTaken; // Then by lowest strokes taken
+    });
+  };
+
+  const sortedTeamMembers = sortTeamMembers([...teamMembers]);
 
   return (
     <div className="container mx-auto py-8">
@@ -91,7 +105,7 @@ const TeamStats = () => {
         </Dialog>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {teamMembers.map((member) => (
+        {sortedTeamMembers.map((member) => (
           <Card key={member.id} className="relative">
             <Button
               variant="ghost"
