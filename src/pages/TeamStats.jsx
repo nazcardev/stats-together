@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { X, UserPlus } from "lucide-react";
+import { X, UserPlus, SortAsc } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,82 +30,88 @@ const TeamStats = () => {
 
   const handleAddMember = () => {
     const id = Math.max(...teamMembers.map(m => m.id), 0) + 1;
-    setTeamMembers(prevMembers => {
-      const updatedMembers = [...prevMembers, { ...newMember, id, avatar: "/placeholder.svg" }];
-      return sortTeamMembers(updatedMembers);
-    });
+    setTeamMembers(prevMembers => [
+      ...prevMembers,
+      { ...newMember, id, avatar: "/placeholder.svg" }
+    ]);
     setNewMember({ name: '', holesInOne: 0, strokesTaken: 0 });
   };
 
-  const sortTeamMembers = (members) => {
-    return members.sort((a, b) => {
-      if (b.holesInOne !== a.holesInOne) {
-        return b.holesInOne - a.holesInOne; // Sort by highest holes-in-one
-      }
-      return a.strokesTaken - b.strokesTaken; // Then by lowest strokes taken
-    });
+  const sortTeamMembers = () => {
+    setTeamMembers(prevMembers => 
+      [...prevMembers].sort((a, b) => {
+        if (b.holesInOne !== a.holesInOne) {
+          return b.holesInOne - a.holesInOne; // Sort by highest holes-in-one
+        }
+        return a.strokesTaken - b.strokesTaken; // Then by lowest strokes taken
+      })
+    );
   };
-
-  const sortedTeamMembers = sortTeamMembers([...teamMembers]);
 
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Meet Our Golf Team</h1>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Member
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Team Member</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  value={newMember.name}
-                  onChange={(e) => setNewMember({...newMember, name: e.target.value})}
-                  className="col-span-3"
-                />
+        <div className="flex gap-4">
+          <Button onClick={sortTeamMembers}>
+            <SortAsc className="mr-2 h-4 w-4" />
+            Sort Team
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Member
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Team Member</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    value={newMember.name}
+                    onChange={(e) => setNewMember({...newMember, name: e.target.value})}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="holesInOne" className="text-right">
+                    Holes-in-One
+                  </Label>
+                  <Input
+                    id="holesInOne"
+                    type="number"
+                    value={newMember.holesInOne}
+                    onChange={(e) => setNewMember({...newMember, holesInOne: parseInt(e.target.value)})}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="strokesTaken" className="text-right">
+                    Strokes Taken
+                  </Label>
+                  <Input
+                    id="strokesTaken"
+                    type="number"
+                    value={newMember.strokesTaken}
+                    onChange={(e) => setNewMember({...newMember, strokesTaken: parseInt(e.target.value)})}
+                    className="col-span-3"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="holesInOne" className="text-right">
-                  Holes-in-One
-                </Label>
-                <Input
-                  id="holesInOne"
-                  type="number"
-                  value={newMember.holesInOne}
-                  onChange={(e) => setNewMember({...newMember, holesInOne: parseInt(e.target.value)})}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="strokesTaken" className="text-right">
-                  Strokes Taken
-                </Label>
-                <Input
-                  id="strokesTaken"
-                  type="number"
-                  value={newMember.strokesTaken}
-                  onChange={(e) => setNewMember({...newMember, strokesTaken: parseInt(e.target.value)})}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <Button onClick={handleAddMember}>Add Member</Button>
-          </DialogContent>
-        </Dialog>
+              <Button onClick={handleAddMember}>Add Member</Button>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {sortedTeamMembers.map((member) => (
+        {teamMembers.map((member) => (
           <Card key={member.id} className="relative">
             <Button
               variant="ghost"
